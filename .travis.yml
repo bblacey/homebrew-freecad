@@ -1,32 +1,34 @@
 language: cpp
 os: osx
 
-matrix:
-  include:
-  - osx_image: xcode9.2
-  - osx_image: xcode9.4
+osx_image: 
+  - xcode9.2
+  - xcode9.4
 
 env:
   global:
   - HOMEBREW_NO_AUTO_UPDATE=yes
   - HOMEBREW_LOGS=/tmp
   matrix:
-    - FORMULA=coin
-    - FORMULA=matplotlib
     - FORMULA=med-file
     - FORMULA=nglib
-    - FORMULA=pivy
-    - FORMULA=pyside2
-    - FORMULA=pyside2-tools
-    - FORMULA=qtwebkit
-    - FORMULA=shiboken2
-    - FORMULA=opencamlib
+#    - FORMULA=coin
+#    - FORMULA=matplotlib
+#    - FORMULA=med-file
+#    - FORMULA=nglib
+#    - FORMULA=pivy
+#    - FORMULA=pyside2
+#    - FORMULA=pyside2-tools
+#    - FORMULA=qtwebkit
+#    - FORMULA=shiboken2
+#    - FORMULA=opencamlib
+
+script:
+   - echo "Bottling $FORMULA"
+   - sw_vers
 
 jobs:
    include:
-     - stage: bottle
-       name: "Build bottle $FORMULA"
-       script: echo "Building $FORMULA"
      - stage: deploy
        name: "Publish bottles"
        script: echo "Publishing bottles"
