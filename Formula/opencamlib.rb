@@ -1,19 +1,18 @@
 class Opencamlib < Formula
   desc "Computer Aided Manufacturing libraries"
   homepage "http://www.anderswallin.net/CAM/"
-  version "0.0.1" # TODO Specify a real version here - note usage below
   url "https://github.com/aewallin/opencamlib.git",
       :revision => "f8bd0a66ad4f1114a3caf84f430027c2da79c91d"
+  version "0.0.1" # TODO: Specify a real version here - note usage below
   head "https://github.com/aewallin/opencamlib.git", :using => :git
 
+  option "with-openmp", "Build with support for OpenMP parallel processing"
+
   depends_on "cmake" => :build
+  depends_on "llvm" => :build if build.with?("openmp")
   depends_on "python@2" => :recommended
 
-  option "with-openmp", "Build with support for OpenMP parallel processing"
-  depends_on "llvm" => :build if build.with?("openmp")
-
   def install
-
     if build.with? "openmp"
       llvm_lib = Formula["llvm"].lib
       llvm_inc = "#{llvm_lib}/clang/#{Formula["llvm"].version}" << "/include"
@@ -44,4 +43,3 @@ class Opencamlib < Formula
     end
   end
 end
-
