@@ -13,7 +13,7 @@ class MedFile < Formula
   end
 
   depends_on "cmake" => :build
-  depends_on "gcc" => :build   # for gfortan
+  depends_on "gcc" => :build
   depends_on "swig" => :build
   depends_on "hdf5"
   depends_on "python@2"
@@ -30,7 +30,7 @@ class MedFile < Formula
     python_prefix=`#{Formula["python@2"].opt_bin}/python2-config --prefix`.chomp
     python_include=Dir["#{python_prefix}/include/*"].first
 
-    #ENV.cxx11
+    # ENV.cxx11
     system "cmake", ".", "-DMEDFILE_BUILD_PYTHON=ON",
                          "-DMEDFILE_BUILD_TESTS=OFF",
                          "-DMEDFILE_INSTALL_DOC=OFF",
@@ -54,4 +54,3 @@ class MedFile < Formula
     system "./test"
   end
 end
-
