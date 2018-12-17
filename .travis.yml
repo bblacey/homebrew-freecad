@@ -20,10 +20,8 @@ env:
   - HOMEBREW_NO_AUTO_UPDATE=yes
   - HOMEBREW_LOGS=/tmp
   matrix:
-  - FORMULA=nglib
-  #- FORMULA=med-file
-  #- FORMULA=nglib
-  #- FORMULA=coin
+  - FORMULA=med-file
+  - FORMULA=coin
   #- FORMULA=matplotlib
   #- FORMULA=med-file
   #- FORMULA=nglib
