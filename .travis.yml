@@ -15,8 +15,8 @@ osx_image:
 
 env:
   global:
-  - BT_USER={$BT_USER:-$USER}  # BT_KEY must be set at REPO level
-  - TAP_BOTTLE_ROOT_URL=https://dl.bintray.com/$USER/bottles-freecad
+  - BT_USER=bblacey  # BT_KEY must be set at REPO level
+  - TAP_BOTTLE_ROOT_URL=https://dl.bintray.com/${BT_USER}/bottles-freecad
   - HOMEBREW_NO_AUTO_UPDATE=yes
   - HOMEBREW_LOGS=/tmp
   matrix:
@@ -42,7 +42,8 @@ before_install:
 
 # Install the travis-compatible test-bot
 install:
-  - brew tap maelvalais/test-bot
+  - brew tap --full maelvalais/test-bot
+  - cd /usr/local/Homebrew/Library/Taps/maelvalais/homebrew-test-bot && git checkout 650adb8e413c3b902e87baa125c49f2e16760d5a && cd -
   - mkdir -p $(brew --repo $TRAVIS_REPO_SLUG)
   - rm -rf $(brew --repo $TRAVIS_REPO_SLUG)
   - ln -s $PWD $(brew --repo $TRAVIS_REPO_SLUG)
@@ -80,7 +81,8 @@ jobs:
     - |
       if ls *.{json,tar.gz}; then
         sed -i 's:/usr/local:/home/linuxbrew/.linuxbrew:g' *.json;
-        brew test-bot --ci-upload --root-url=$TAP_BOTTLE_ROOT_URL --git-name=$USER --git-email=bruce@blacey.com --bintray-org=$TAP_BOTTLE_ORG --verbose;
+        brew test-bot --ci-upload --root-url=$TAP_BOTTLE_ROOT_URL --git-name=${BT_USER} --git-email=bruce@blacey.com --bintray-org=$TAP_BOTTLE_ORG --verbose;
+
       else
         echo "==> No bottle found in the bucket, skipping --ci-upload";
       fi
