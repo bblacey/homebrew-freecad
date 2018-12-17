@@ -3,7 +3,6 @@ class Nglib < Formula
   homepage "https://sourceforge.net/projects/netgen-mesher/"
   url "https://downloads.sourceforge.net/project/netgen-mesher/netgen-mesher/5.3/netgen-5.3.1.tar.gz"
   sha256 "cb97f79d8f4d55c00506ab334867285cde10873c8a8dc783522b47d2bc128bf9"
-  revision 1
 
   bottle do
     root_url "https://dl.bintray.com/freecad/bottles-freecad"
@@ -62,8 +61,8 @@ class Nglib < Formula
     # The nglib installer doesn't include some important headers by default.
     # This follows a pattern used on other platforms to make a set of sub
     # directories within include/ to contain these headers.
-    subdirs = ["csg", "general", "geom2d", "gprim", "include", "interface",
-               "linalg", "meshing", "occ", "stlgeom", "visualization"]
+    subdirs = %w[csg general geom2d gprim include interface
+                 linalg meshing occ stlgeom visualization]
     subdirs.each do |subdir|
       (include/"netgen"/subdir).mkpath
       (include/"netgen"/subdir).install Dir.glob("libsrc/#{subdir}/*.{h,hpp}")
