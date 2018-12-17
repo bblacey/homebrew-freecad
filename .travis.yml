@@ -60,7 +60,8 @@ script:
     #if [[ $TRAVIS_EVENT_TYPE =~ pull_request ]]; then
     #  brew test-bot --root-url=$TAP_BOTTLE_ROOT_URL
     #fi
-  - brew test-bot --root-url=$TAP_BOTTLE_ROOT_URL ${FORMULA}.rb
+  #- brew test-bot --root-url=$TAP_BOTTLE_ROOT_URL
+  - brew test-bot --root-url=$TAP_BOTTLE_ROOT_URL ${FORMULA}
   - ls *.bottle*.* || echo "==> No bottle created here"
 
 # Upload the bottle to staging area for this build
