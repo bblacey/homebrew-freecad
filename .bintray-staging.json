@@ -1,0 +1,25 @@
+{
+	"package": {
+		"repo": "travis-staging",
+		"name": "bottles",
+		"subject": "bblacey",
+		"desc": "FreeCAD Homebrew bottle staging",
+		"website_url": "http://www.freecad.org",
+                "vcs_url": "http://github.com/FreeCAD/FreeCAD-homebrew.git",
+                "licenses": ["LGPL-2.1"],
+ 		"public_download_numbers": false,
+ 		"public_stats": false
+ 	},
+
+	"version": {
+		"name": "TRAVIS_BUILD_NUMBER",
+		"gpgSign": false
+	},
+
+	"files":
+		[
+		{"includePattern": "./*/(.*\.tar\.gz)", "uploadPattern": "$1"}
+		{"includePattern": "./*/(.*\.json)", "uploadPattern": "$1"}
+		],
+	"publish": false
+}

@@ -1,34 +1,105 @@
-language: cpp
+# Auto-bottler for FreeCAD Homebrew Formulae
+#
+# This travis config first builds a homebrew bottle for each formula and macOS combintation, stages them to 
+# BinTray and ultimately deploys the collection to Bintray
+#
+# Based on prior art here - https://gist.github.com/maelvalais/068af21911c7debc4655cdaa41bbf092
+
+#language: cpp
+language: ruby
 os: osx
 
-osx_image: 
+osx_image:
   - xcode9.2
   - xcode9.4
 
 env:
   global:
+  - BT_USER={$BT_USER:-$USER}  # BT_KEY must be set at REPO level
+  - TAP_BOTTLE_ROOT_URL=https://dl.bintray.com/$USER/bottles-freecad
   - HOMEBREW_NO_AUTO_UPDATE=yes
   - HOMEBREW_LOGS=/tmp
   matrix:
-    - FORMULA=med-file
-    - FORMULA=nglib
-#    - FORMULA=coin
-#    - FORMULA=matplotlib
-#    - FORMULA=med-file
-#    - FORMULA=nglib
-#    - FORMULA=pivy
-#    - FORMULA=pyside2
-#    - FORMULA=pyside2-tools
-#    - FORMULA=qtwebkit
-#    - FORMULA=shiboken2
-#    - FORMULA=opencamlib
+  - FORMULA=nglib
+  #- FORMULA=med-file
+  #- FORMULA=nglib
+  #- FORMULA=coin
+  #- FORMULA=matplotlib
+  #- FORMULA=med-file
+  #- FORMULA=nglib
+  #- FORMULA=pivy
+  #- FORMULA=pyside2
+  #- FORMULA=pyside2-tools
+  #- FORMULA=qtwebkit
+  #- FORMULA=shiboken2
+  #- FORMULA=opencamlib
+
+# 
+before_install:
+  - mkdir ~/usr_local && sudo mv /usr/local/* ~/usr_local
+  - /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+  - travis_retry brew install libyaml gmp openssl@1.1 openssl jq
+
+# Install the travis-compatible test-bot
+install:
+  - brew tap maelvalais/test-bot
+  - mkdir -p $(brew --repo $TRAVIS_REPO_SLUG)
+  - rm -rf $(brew --repo $TRAVIS_REPO_SLUG)
+  - ln -s $PWD $(brew --repo $TRAVIS_REPO_SLUG)
+  - git fetch --unshallow || true 
+  #- HOMEBREW_DEVELOPER=1 brew doctor
+
+before_script:
+  - sed -i '' "s:TRAVIS_BUILD_NUMBER:$TRAVIS_BUILD_NUMBER:g" .bintray-staging.json
 
 script:
-   - echo "Bottling $FORMULA"
-   - sw_vers
+    #- |
+    #if [[ $TRAVIS_EVENT_TYPE =~ cron|api ]]; then
+    #  brew install ${FORMULA}.rb && brew test ${FORMULA}.rb && brew linkage --test ${FORMULA}.rb || exit 123
+    #fi
+    #if [[ $TRAVIS_EVENT_TYPE =~ pull_request ]]; then
+    #  brew test-bot --root-url=$TAP_BOTTLE_ROOT_URL
+    #fi
+  - brew test-bot --root-url=$TAP_BOTTLE_ROOT_URL ${FORMULA}.rb
+  - ls *.bottle*.* || echo "==> No bottle created here"
+
+# Upload the bottle to staging area for this build
+after_script: true
+  #curl -T ${FORUMULA}-*bottle*.tar.gz https://api.bintray.com/content/$BT_USER/
 
 jobs:
-   include:
-     - stage: deploy
-       name: "Publish bottles"
-       script: echo "Publishing bottles"
+  include:
+  - stage: deploy
+    name: "Publish bottles"
+    os: linux
+    env: OS=any_linux
+
+    # Download the staged bottles and publish to Bintray
+    script:
+    - |
+      if ls *.{json,tar.gz}; then
+        sed -i 's:/usr/local:/home/linuxbrew/.linuxbrew:g' *.json;
+        brew test-bot --ci-upload --root-url=$TAP_BOTTLE_ROOT_URL --git-name=$USER --git-email=bruce@blacey.com --bintray-org=$TAP_BOTTLE_ORG --verbose;
+      else
+        echo "==> No bottle found in the bucket, skipping --ci-upload";
+      fi
+
+    before_install:
+    - umask 022 && chmod 0644 *.rb
+    - export PATH="/home/linuxbrew/.linuxbrew/bin:/home/linuxbrew/.linuxbrew/sbin:$PATH"
+    - yes | sh -c "$(curl -fsSL https://raw.githubusercontent.com/Linuxbrew/install/master/install.sh)" || (brew update --force)
+    - sudo rm -f /home/travis/.phpenv/shims/php-config /opt/pyenv/shims/*-config /usr/local/clang-*/bin/llvm-config
+
+    # Removed staged bottles from Bintray for this build version
+    #after_script:
+    #- curl -X DELETE -u$BT_USER:$BT_KEY https://api.bintray.com/packages/$BT_USER/travis-staging/bottles/$TRAVIS_BUILD_NUMBER
+
+deploy:
+  provider: bintray
+  file: ".bintray-staging.json"
+  user: bblacey
+  on:
+    all_branches: true
+  skip_cleanup: true
+  key:
+    secure: VvR+G57Tr9Lxa53GHpr1o2wk/OPxu4BXx3BpTnpAToBU2ZXAJU8gI3lK506xW1HIfc/p4Sbtv9qqZ25jBpgAYSKUPfV1dhTpzp0/tDjhXADoc0k18p3vHSZ+BUrXBZ+NbjaXeSLrxegiJdw4rbP8xLu/l1pLY+q6+Z6dLbBcmsgkXDfKEKsl9M2s8i19E51J6PIqpYNsPxjH1qJmaywvSS/xUrzxSwC0fLq9jNxKUNHHVv+Nl/qMDeAgpvoXTwpmW4eJCtu5cET0+bPyq1dI9cdHt2R/DHpFw3vVXDl2cMUtAjRPgsjjgERv3Hwlg+WXCEVshsow8lBkwur6iyBqWHrJ6G+kNroRAUpwI/dgYKzfKq46NoQhy9rkVsKnOHWlX26+e+dz+iIV7dyK8Zo4lOv8v8rMNHza8mP2XmC9r6eALd5mXwnNNJvWexFpbv7GAFQO9cdqndsqM2jx7zeGhMvSH1ZWkhVHSVojxwdgLUqmaC/BkgAkJk982zlKdbpPxnfrPkvUcn1IxP2pRyeSztM+KN4RAR9CbS8e7vltqKLGCSPVDqht9cxM8gPMLKLgl9KWB7axqrsg1YauAh5ijlcfhOUZS6H2KDgBOONa3w21rx9q91p1fMtXdUgb0JTlobfuh3ppzuuEMt/b6+e0DeJ9ZBv/AqAEX9o4Y5Dz0hY=
