@@ -112,6 +112,6 @@ deploy:
   user: ${BT_USER}
   on:
     all_branches: true
-    condition: os = osx
+    #condition: os = osx
   skip_cleanup: true
   key: ${BT_KEY}
