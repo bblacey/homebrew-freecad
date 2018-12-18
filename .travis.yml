@@ -46,7 +46,7 @@ install:
   - rm -rf $(brew --repo $TRAVIS_REPO_SLUG)
   - ln -s $PWD $(brew --repo $TRAVIS_REPO_SLUG)
   - git fetch --unshallow || true
-  #- HOMEBREW_DEVELOPER=1 brew doctor
+  - HOMEBREW_DEVELOPER=1 brew doctor
 
 before_script:
   - sed -i '' "s:TRAVIS_BUILD_NUMBER:$TRAVIS_BUILD_NUMBER:g" .bintray-staging.json
