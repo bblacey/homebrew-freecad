@@ -42,7 +42,7 @@ before_install:
 install:
   - pwd
   - brew tap --full maelvalais/test-bot
-  #- cd $(brew --repo maelvalais/homebrew-test-bot) && git checkout 650adb8e413c3b902e87baa125c49f2e16760d5a && cd -
+  - git -C $(brew --repo maelvalais/test-bot) reset --hard 4f4bdfa810c12d9bc68fe8df93f2629c6fc6d504
   - pwd
   - ls -al $(brew --repo $TRAVIS_REPO_SLUG)/.. || true
   - mkdir -p $(brew --repo $TRAVIS_REPO_SLUG)
