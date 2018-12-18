@@ -17,6 +17,8 @@ env:
   global:
   - BT_USER=bblacey  # BT_KEY must be set at REPO level
   - TAP_BOTTLE_ROOT_URL=https://dl.bintray.com/bblacey/bottles-freecad
+  - HOMEBREW_BINTRAY_USER=${BT_USER}
+  - HOMEBREW_BINTRAY_KEY=${BT_KEY}
   - HOMEBREW_NO_AUTO_UPDATE=yes
   - HOMEBREW_LOGS=/tmp
   matrix:
