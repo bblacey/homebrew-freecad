@@ -43,7 +43,7 @@ before_install:
 # Install the travis-compatible test-bot
 install:
   - brew tap --full maelvalais/test-bot
-  - git -C $(brew --repo maelvalais/test-bot) reset --hard 4f4bdfa810c12d9bc68fe8df93f2629c6fc6d504
+  #- git -C $(brew --repo maelvalais/test-bot) reset --hard 4f4bdfa810c12d9bc68fe8df93f2629c6fc6d504
   - mkdir -p $(brew --repo $TRAVIS_REPO_SLUG)
   - rm -rf $(brew --repo $TRAVIS_REPO_SLUG)
   - ln -s $PWD $(brew --repo $TRAVIS_REPO_SLUG)
