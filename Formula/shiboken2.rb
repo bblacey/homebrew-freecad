@@ -1,7 +1,7 @@
 class Shiboken2 < Formula
   desc "GeneratorRunner plugin that outputs C++ code for CPython extensions"
   homepage "https://wiki.qt.io/PySide2"
-  url "http://code.qt.io/pyside/pyside-setup.git", :using => :git, :branch => "5.11.2"
+  url "http://code.qt.io/pyside/pyside-setup.git", :branch => "5.11.2"
   version "5.11.2"
   head "http://code.qt.io/pyside/pyside-setup.git", :branch => "5.11"
 
@@ -20,14 +20,14 @@ class Shiboken2 < Formula
 
   option "without-python", "Build without python 2 support"
   depends_on "python@2" => :recommended
-  depends_on "python3" => :optional
+  depends_on "python" => :optional
 
   def install
     qt = Formula["qt"]
 
     ENV["LLVM_INSTALL_DIR"] = Formula["llvm"].opt_prefix
 
-    Language::Python.each_python(build) do |python, version|
+    Language::Python.each_python(build) do |_python, version|
       mkdir "macbuild#{version}" do
         args = std_cmake_args
 
@@ -44,6 +44,6 @@ class Shiboken2 < Formula
   end
 
   test do
-    system "shiboken2", "--version"
+    system "#{bin}/shiboken2", "--version"
   end
 end
