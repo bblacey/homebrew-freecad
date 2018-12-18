@@ -22,19 +22,18 @@ env:
   - HOMEBREW_NO_AUTO_UPDATE=yes
   - HOMEBREW_LOGS=/tmp
   matrix:
+  - FORMULA=coin
+  - FORMULA=matplotlib
   - FORMULA=med-file
-  #- FORMULA=coin
-  #- FORMULA=matplotlib
-  #- FORMULA=med-file
-  #- FORMULA=nglib
-  #- FORMULA=pivy
-  #- FORMULA=pyside2
-  #- FORMULA=pyside2-tools
-  #- FORMULA=qtwebkit
-  #- FORMULA=shiboken2
-  #- FORMULA=opencamlib
+  - FORMULA=nglib
+  - FORMULA=opencamlib
+  - FORMULA=pivy
+  - FORMULA=pyside2
+  - FORMULA=pyside2-tools
+  - FORMULA=qtwebkit
+  - FORMULA=shiboken2
 
-# 
+# Lay down a fresh Homebrew install
 before_install:
   - mkdir ~/usr_local && sudo mv /usr/local/* ~/usr_local
   - /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
@@ -42,8 +41,7 @@ before_install:
 
 # Install the travis-compatible test-bot
 install:
-  - brew tap --full maelvalais/test-bot
-  #- git -C $(brew --repo maelvalais/test-bot) reset --hard 4f4bdfa810c12d9bc68fe8df93f2629c6fc6d504
+  - brew tap maelvalais/test-bot
   - mkdir -p $(brew --repo $TRAVIS_REPO_SLUG)
   - rm -rf $(brew --repo $TRAVIS_REPO_SLUG)
   - ln -s $PWD $(brew --repo $TRAVIS_REPO_SLUG)
@@ -68,7 +66,7 @@ script:
 
 # Upload the bottle to staging area for this build
 after_script: true
-  #curl -T ${FORUMULA}-*bottle*.tar.gz https://api.bintray.com/content/$BT_USER/
+  #curl -T ${FORUMULA}-*bottle*.{tar.gz,json} https://api.bintray.com/content/$BT_USER/
 
 jobs:
   include:
@@ -92,7 +90,7 @@ jobs:
         #brew test-bot --ci-upload --root-url=$TAP_BOTTLE_ROOT_URL --git-name=${BT_USER} --git-email=bruce@blacey.com --bintray-org=$TAP_BOTTLE_ORG --verbose;
         brew test-bot --ci-upload --root-url=https://dl.bintray.com/bblacey/homebrew-freecad --bintray-org=bblacey --verbose;
       else
-        echo "==> No bottle found in the bucket, skipping --ci-upload";
+        echo "==> No staged bottless, skipping --ci-upload";
       fi
 
     before_install:
@@ -105,8 +103,9 @@ jobs:
     - sed -i "s:TRAVIS_BUILD_NUMBER:$TRAVIS_BUILD_NUMBER:g" .bintray-staging.json
 
     # Removed staged bottles from Bintray for this build version
-    #after_script:
-    #- curl -X DELETE -u$BT_USER:$BT_KEY https://api.bintray.com/packages/$BT_USER/travis-staging/bottles/$TRAVIS_BUILD_NUMBER
+    after_script:
+    - rm *.{json,tar.gz}
+    - curl -X DELETE -u$BT_USER:$BT_KEY https://api.bintray.com/packages/$BT_USER/travis-staging/bottles/$TRAVIS_BUILD_NUMBER
 
 deploy:
   provider: bintray
