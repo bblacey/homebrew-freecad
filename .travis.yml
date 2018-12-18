@@ -48,6 +48,7 @@ install:
   - mkdir -p $(brew --repo $TRAVIS_REPO_SLUG)
   - rm -rf $(brew --repo $TRAVIS_REPO_SLUG)
   - ln -s $PWD $(brew --repo $TRAVIS_REPO_SLUG)
+  - ls -al $PWD/..
   - ls -al $(brew --repo $TRAVIS_REPO_SLUG)/..
   - git fetch --unshallow || true
   - #HOMEBREW_DEVELOPER=1 brew doctor
