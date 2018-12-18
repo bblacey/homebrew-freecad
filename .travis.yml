@@ -16,7 +16,7 @@ osx_image:
 env:
   global:
   - BT_USER=bblacey  # BT_KEY must be set at REPO level
-  - TAP_BOTTLE_ROOT_URL=https://dl.bintray.com/FreeCAD/bottles-freecad
+  - TAP_BOTTLE_ROOT_URL=https://dl.bintray.com/bblacey/bottles-freecad
   - HOMEBREW_NO_AUTO_UPDATE=yes
   - HOMEBREW_LOGS=/tmp
   matrix:
@@ -40,16 +40,11 @@ before_install:
 
 # Install the travis-compatible test-bot
 install:
-  - pwd
   - brew tap --full maelvalais/test-bot
   - git -C $(brew --repo maelvalais/test-bot) reset --hard 4f4bdfa810c12d9bc68fe8df93f2629c6fc6d504
-  - pwd
-  - ls -al $(brew --repo $TRAVIS_REPO_SLUG)/.. || true
   - mkdir -p $(brew --repo $TRAVIS_REPO_SLUG)
   - rm -rf $(brew --repo $TRAVIS_REPO_SLUG)
   - ln -s $PWD $(brew --repo $TRAVIS_REPO_SLUG)
-  - ls -al $PWD/..
-  - ls -al $(brew --repo $TRAVIS_REPO_SLUG)/..
   - git fetch --unshallow || true
   - export HOMBREW_DEVELOPER=1
   - #HOMEBREW_DEVELOPER=1 brew doctor
@@ -66,7 +61,6 @@ script:
     #  brew test-bot --root-url=$TAP_BOTTLE_ROOT_URL
     #fi
   #- brew test-bot --root-url=$TAP_BOTTLE_ROOT_URL
-  #- brew test-bot --root-url=$TAP_BOTTLE_ROOT_URL ${FORMULA}
   - brew test-bot --root-url=$TAP_BOTTLE_ROOT_URL Formula/${FORMULA}.rb
   - ls *.bottle*.* || echo "==> No bottle created here"
 
@@ -84,16 +78,23 @@ jobs:
     # Download the staged bottles and publish to Bintray
     script:
     - |
+      bottleArtifacts=$(curl -u${BT_USER}:${BT_KEY} https://api.bintray.com/packages/${BT_USER}/travis-staging/bottles/versions/${TRAVIS_BUILD_NUMBER}/files?include_unpublished=1 | | jq -r '.[].path')
+      echo "Staged bottles artifacts: ${bottleArtifacts}"
+      for stagedArtifact in ${bottleArtifacts}; do
+         echo "Downloading unpublished staged bottling artifact $stagedArtifact"
+         travis_retry curl -LO -u${BT_USER}:${BT_KEY} https://dl.bintray.com/${BT_USER}/travis-staging/$stagedArtifact;
+      done
+    - |
       if ls *.{json,tar.gz}; then
         sed -i 's:/usr/local:/home/linuxbrew/.linuxbrew:g' *.json;
-        brew test-bot --ci-upload --root-url=$TAP_BOTTLE_ROOT_URL --git-name=${BT_USER} --git-email=bruce@blacey.com --bintray-org=$TAP_BOTTLE_ORG --verbose;
-
+        #brew test-bot --ci-upload --root-url=$TAP_BOTTLE_ROOT_URL --git-name=${BT_USER} --git-email=bruce@blacey.com --bintray-org=$TAP_BOTTLE_ORG --verbose;
+        brew test-bot --ci-upload --root-url=https://dl.bintray.com/bblacey/homebrew-freecad --bintray-org=$TAP_BOTTLE_ORG --verbose;
       else
         echo "==> No bottle found in the bucket, skipping --ci-upload";
       fi
 
     before_install:
-    - umask 022 && chmod 0644 *.rb
+    - umask 022 && chmod 0644 Formula/*.rb
     - export PATH="/home/linuxbrew/.linuxbrew/bin:/home/linuxbrew/.linuxbrew/sbin:$PATH"
     - yes | sh -c "$(curl -fsSL https://raw.githubusercontent.com/Linuxbrew/install/master/install.sh)" || (brew update --force)
     - sudo rm -f /home/travis/.phpenv/shims/php-config /opt/pyenv/shims/*-config /usr/local/clang-*/bin/llvm-config
@@ -109,5 +110,5 @@ deploy:
   on:
     all_branches: true
   skip_cleanup: true
-  key:
-    secure: VvR+G57Tr9Lxa53GHpr1o2wk/OPxu4BXx3BpTnpAToBU2ZXAJU8gI3lK506xW1HIfc/p4Sbtv9qqZ25jBpgAYSKUPfV1dhTpzp0/tDjhXADoc0k18p3vHSZ+BUrXBZ+NbjaXeSLrxegiJdw4rbP8xLu/l1pLY+q6+Z6dLbBcmsgkXDfKEKsl9M2s8i19E51J6PIqpYNsPxjH1qJmaywvSS/xUrzxSwC0fLq9jNxKUNHHVv+Nl/qMDeAgpvoXTwpmW4eJCtu5cET0+bPyq1dI9cdHt2R/DHpFw3vVXDl2cMUtAjRPgsjjgERv3Hwlg+WXCEVshsow8lBkwur6iyBqWHrJ6G+kNroRAUpwI/dgYKzfKq46NoQhy9rkVsKnOHWlX26+e+dz+iIV7dyK8Zo4lOv8v8rMNHza8mP2XmC9r6eALd5mXwnNNJvWexFpbv7GAFQO9cdqndsqM2jx7zeGhMvSH1ZWkhVHSVojxwdgLUqmaC/BkgAkJk982zlKdbpPxnfrPkvUcn1IxP2pRyeSztM+KN4RAR9CbS8e7vltqKLGCSPVDqht9cxM8gPMLKLgl9KWB7axqrsg1YauAh5ijlcfhOUZS6H2KDgBOONa3w21rx9q91p1fMtXdUgb0JTlobfuh3ppzuuEMt/b6+e0DeJ9ZBv/AqAEX9o4Y5Dz0hY=
+  key: ${BT_KEY}
+#    secure: VvR+G57Tr9Lxa53GHpr1o2wk/OPxu4BXx3BpTnpAToBU2ZXAJU8gI3lK506xW1HIfc/p4Sbtv9qqZ25jBpgAYSKUPfV1dhTpzp0/tDjhXADoc0k18p3vHSZ+BUrXBZ+NbjaXeSLrxegiJdw4rbP8xLu/l1pLY+q6+Z6dLbBcmsgkXDfKEKsl9M2s8i19E51J6PIqpYNsPxjH1qJmaywvSS/xUrzxSwC0fLq9jNxKUNHHVv+Nl/qMDeAgpvoXTwpmW4eJCtu5cET0+bPyq1dI9cdHt2R/DHpFw3vVXDl2cMUtAjRPgsjjgERv3Hwlg+WXCEVshsow8lBkwur6iyBqWHrJ6G+kNroRAUpwI/dgYKzfKq46NoQhy9rkVsKnOHWlX26+e+dz+iIV7dyK8Zo4lOv8v8rMNHza8mP2XmC9r6eALd5mXwnNNJvWexFpbv7GAFQO9cdqndsqM2jx7zeGhMvSH1ZWkhVHSVojxwdgLUqmaC/BkgAkJk982zlKdbpPxnfrPkvUcn1IxP2pRyeSztM+KN4RAR9CbS8e7vltqKLGCSPVDqht9cxM8gPMLKLgl9KWB7axqrsg1YauAh5ijlcfhOUZS6H2KDgBOONa3w21rx9q91p1fMtXdUgb0JTlobfuh3ppzuuEMt/b6+e0DeJ9ZBv/AqAEX9o4Y5Dz0hY=
