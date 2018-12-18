@@ -42,7 +42,7 @@ before_install:
 install:
   - pwd
   - brew tap --full maelvalais/test-bot
-  - cd $(brew --repo maelvalais/homebrew-test-bot) && git checkout 650adb8e413c3b902e87baa125c49f2e16760d5a && cd -
+  #- cd $(brew --repo maelvalais/homebrew-test-bot) && git checkout 650adb8e413c3b902e87baa125c49f2e16760d5a && cd -
   - pwd
   - ls -al $(brew --repo $TRAVIS_REPO_SLUG)/.. || true
   - mkdir -p $(brew --repo $TRAVIS_REPO_SLUG)
@@ -51,6 +51,7 @@ install:
   - ls -al $PWD/..
   - ls -al $(brew --repo $TRAVIS_REPO_SLUG)/..
   - git fetch --unshallow || true
+  - export HOMBREW_DEVELOPER=1
   - #HOMEBREW_DEVELOPER=1 brew doctor
 
 before_script:
@@ -66,7 +67,7 @@ script:
     #fi
   #- brew test-bot --root-url=$TAP_BOTTLE_ROOT_URL
   #- brew test-bot --root-url=$TAP_BOTTLE_ROOT_URL ${FORMULA}
-  - HOMEBREW_DEVELOPER=1 brew test-bot --root-url=$TAP_BOTTLE_ROOT_URL Formula/${FORMULA}.rb
+  - brew test-bot --root-url=$TAP_BOTTLE_ROOT_URL Formula/${FORMULA}.rb
   - ls *.bottle*.* || echo "==> No bottle created here"
 
 # Upload the bottle to staging area for this build
