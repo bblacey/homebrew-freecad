@@ -28,7 +28,7 @@ class NoExternalPyCXXPackage < Requirement
     is installed, you can:
         python -c "import os; import CXX; print(os.path.dirname(CXX.__file__))"
     See also: https://github.com/Homebrew/homebrew-python/issues/56
-    EOS
+  EOS
   end
 end
 
@@ -52,44 +52,41 @@ class Matplotlib < Formula
   option "with-pygtk", "Build with pygtk backend support (python2 only)"
   option "with-tex", "Build with tex support"
 
-  depends_on "python@2" => :recommended
-  depends_on "python3" => :optional
+  deprecated_option "with-gtk3" => "with-gtk+3"
 
   requires_py2 = []
   requires_py2 << "with-python" if build.with? "python@2"
   requires_py3 = []
   requires_py3 << "with-python3" if build.with? "python3"
 
-  deprecated_option "with-gtk3" => "with-gtk+3"
-
   depends_on NoExternalPyCXXPackage => :build
   depends_on "pkg-config" => :build
-
   depends_on "freetype"
   depends_on "libpng"
   depends_on "numpy" => requires_py3
+
+  depends_on "python@2" => :recommended
+
+  depends_on "gtk+3" => :optional
+  depends_on "pygobject3" => requires_py3 if build.with? "gtk+3"
+  depends_on "pygtk" => :optional
+  depends_on DvipngRequirement if build.with? "tex"
+  depends_on "pygobject" if build.with? "pygtk"
   depends_on "ghostscript" => :optional
-  depends_on "tcl-tk" => :optional
+  depends_on "pyqt" => [:optional] + requires_py2
+  depends_on "python" => :optional
 
   if build.with? "cairo"
     depends_on "py2cairo" if build.with? "python@2"
     depends_on "py3cairo" if build.with? "python3"
   end
 
-  depends_on "gtk+3" => :optional
-  depends_on "pygobject3" => requires_py3 if build.with? "gtk+3"
-
-  depends_on "pygtk" => :optional
-  depends_on "pygobject" if build.with? "pygtk"
-
-  depends_on "pyqt" => [:optional] + requires_py2
-
-  depends_on DvipngRequirement if build.with? "tex"
+  depends_on "tcl-tk" => :optional
 
   cxxstdlib_check :skip
 
   resource "setuptools" do
-    url "https://pypi.python.org/packages/e9/c3/5986db56819bd88e1a250cad2a97249211686b1b7b5d95f9ab64d403a2cb/setuptools-38.2.5.zip"
+    url "https://files.pythonhosted.org/packages/e9/c3/5986db56819bd88e1a250cad2a97249211686b1b7b5d95f9ab64d403a2cb/setuptools-38.2.5.zip"
     sha256 "b080f276cc868670540b2c03cee06cc14d2faf9da7bec0f15058d1b402c94507"
   end
 
@@ -126,7 +123,7 @@ class Matplotlib < Formula
 
   # python2 only
   resource "subprocess32" do
-    url "https://pypi.python.org/packages/28/91/d1283618eba07c4e8e18c58b3fd8b5ff3a8992fb652a3720535ddf2f2916/subprocess32-3.5.0rc1.tar.gz"
+    url "https://files.pythonhosted.org/packages/28/91/d1283618eba07c4e8e18c58b3fd8b5ff3a8992fb652a3720535ddf2f2916/subprocess32-3.5.0rc1.tar.gz"
     sha256 "2733defaf2cb24282fdc94cc9f2e0682308d4b20e4b7a6e384580410f314c9af"
   end
 
