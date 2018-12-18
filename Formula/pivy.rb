@@ -6,16 +6,13 @@ class Pivy < Formula
   version "0.5.0-4b84e76"
 
   bottle do
-    root_url "https://dl.bintray.com/freecad/bottles-freecad"
+    root_url "https://homebrew.bintray.com/bottles-freecad"
     cellar :any
-    rebuild 3
-    sha256 "01e80593ec91b255292d38557cf9b24b9a37ff7e70fa15b79a3e7b7f4d767788" => :high_sierra
-    sha256 "6676b7ed0026ea0a5111e06632d54c69c85dd13be2792ec7d6f00b848b47658d" => :sierra
-    sha256 "3bcf82cdcff322fae255fc4d55840aadc7a99540376f304371cb600103141305" => :el_capitan
+    sha256 "b0057a5d48ce3c7a95bc652c3cc966420fd5e1223bead57f2ec7347f915eb47e" => :sierra
   end
 
   depends_on "python" => :build
-  depends_on "swig"  => :build
+  depends_on "swig" => :build
   depends_on "FreeCAD/freecad/coin"
 
   def install
