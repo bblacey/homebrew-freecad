@@ -99,6 +99,9 @@ jobs:
     - yes | sh -c "$(curl -fsSL https://raw.githubusercontent.com/Linuxbrew/install/master/install.sh)" || (brew update --force)
     - sudo rm -f /home/travis/.phpenv/shims/php-config /opt/pyenv/shims/*-config /usr/local/clang-*/bin/llvm-config
 
+    before_script:
+    - sed -i "s:TRAVIS_BUILD_NUMBER:$TRAVIS_BUILD_NUMBER:g" .bintray-staging.json
+
     # Removed staged bottles from Bintray for this build version
     #after_script:
     #- curl -X DELETE -u$BT_USER:$BT_KEY https://api.bintray.com/packages/$BT_USER/travis-staging/bottles/$TRAVIS_BUILD_NUMBER
