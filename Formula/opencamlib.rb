@@ -3,6 +3,12 @@ class Opencamlib < Formula
   homepage "http://www.anderswallin.net/CAM/"
   url "https://github.com/aewallin/opencamlib.git",
       :revision => "f8bd0a66ad4f1114a3caf84f430027c2da79c91d"
+  bottle do
+    root_url "https://homebrew.bintray.com/bottles-freecad"
+    cellar :any
+    sha256 "d44870c9f77c902a238b5c4832fcb1c96957b09630c5cd59f96bfa30d72d7d1a" => :sierra
+  end
+
   version "0.0.1" # TODO: Specify a real version here - note usage below
   head "https://github.com/aewallin/opencamlib.git", :using => :git
 
@@ -10,6 +16,7 @@ class Opencamlib < Formula
 
   depends_on "cmake" => :build
   depends_on "llvm" => :build if build.with?("openmp")
+  depends_on "boost-python@1.59" # TODO: Fails to locate files with homebrew boost 1.68, pin to 1.59
   depends_on "python@2" => :recommended
 
   def install
@@ -23,15 +30,14 @@ class Opencamlib < Formula
       if build.with? "openmp"
         cmake_args << "-DCMAKE_C_COMPILER=#{Formula["llvm"].bin}/clang"
         cmake_args << "-DCMAKE_CXX_COMPILER=#{Formula["llvm"].bin}/clang++"
-
         cmake_args << "-DCMAKE_MODULE_LINKER_FLAGS=-undefined dynamic_lookup -L#{llvm_lib} -Wl,-rpath,#{llvm_lib}"
-
         cmake_args << "-DCMAKE_C_FLAGS=-I#{llvm_inc}"
         cmake_args << "-DCMAKE_CXX_FLAGS=-I#{llvm_inc} -std=c++11"
       else
         cmake_args << "-DUSE_OPENMP=0"
       end
 
+      cmake_args << "-DBOOST_ROOT=#{Formula["boost@1.59"].prefix}"
       if build.with? "python"
         cmake_args << "-DPYTHON_EXECUTABLE=#{Formula["python@2"].bin}/python2"
       else
