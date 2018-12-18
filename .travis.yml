@@ -16,7 +16,7 @@ osx_image:
 env:
   global:
   - BT_USER=bblacey  # BT_KEY must be set at REPO level
-  - TAP_BOTTLE_ROOT_URL=https://dl.bintray.com/${BT_USER}/bottles-freecad
+  - TAP_BOTTLE_ROOT_URL=https://dl.bintray.com/FreeCAD/bottles-freecad
   - HOMEBREW_NO_AUTO_UPDATE=yes
   - HOMEBREW_LOGS=/tmp
   matrix:
@@ -41,11 +41,11 @@ before_install:
 # Install the travis-compatible test-bot
 install:
   - brew tap --full maelvalais/test-bot
-  - cd /usr/local/Homebrew/Library/Taps/maelvalais/homebrew-test-bot && git checkout 650adb8e413c3b902e87baa125c49f2e16760d5a && cd -
+  - cd $(brew --repo maelvalais/homebrew-test-bot) && git checkout 650adb8e413c3b902e87baa125c49f2e16760d5a && cd -
   - mkdir -p $(brew --repo $TRAVIS_REPO_SLUG)
   - rm -rf $(brew --repo $TRAVIS_REPO_SLUG)
   - ln -s $PWD $(brew --repo $TRAVIS_REPO_SLUG)
-  - git fetch --unshallow || true 
+  - git fetch --unshallow || true
   #- HOMEBREW_DEVELOPER=1 brew doctor
 
 before_script:
@@ -61,9 +61,7 @@ script:
     #fi
   #- brew test-bot --root-url=$TAP_BOTTLE_ROOT_URL
   #- brew test-bot --root-url=$TAP_BOTTLE_ROOT_URL ${FORMULA}
-  #- brew test-bot --root-url=$TAP_BOTTLE_ROOT_URL Formula/${FORMULA}.rb
-  - cd Formula
-  - brew test-bot --root-url=$TAP_BOTTLE_ROOT_URL
+  - HOMEBREW_DEVELOPER=1 brew test-bot --root-url=$TAP_BOTTLE_ROOT_URL Formula/${FORMULA}.rb
   - ls *.bottle*.* || echo "==> No bottle created here"
 
 # Upload the bottle to staging area for this build
