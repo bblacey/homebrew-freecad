@@ -88,7 +88,7 @@ jobs:
       if ls *.{json,tar.gz}; then
         sed -i 's:/usr/local:/home/linuxbrew/.linuxbrew:g' *.json;
         #brew test-bot --ci-upload --root-url=$TAP_BOTTLE_ROOT_URL --git-name=${BT_USER} --git-email=bruce@blacey.com --bintray-org=$TAP_BOTTLE_ORG --verbose;
-        brew test-bot --ci-upload --root-url=https://dl.bintray.com/bblacey/homebrew-freecad --bintray-org=$TAP_BOTTLE_ORG --verbose;
+        brew test-bot --ci-upload --root-url=https://dl.bintray.com/bblacey/homebrew-freecad --bintray-org=bblacey --verbose;
       else
         echo "==> No bottle found in the bucket, skipping --ci-upload";
       fi
